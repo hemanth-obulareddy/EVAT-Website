@@ -8,6 +8,7 @@ import NavBar from '../components/NavBar';
 import LocateUser from '../components/LocateUser';
 import ClusterMarkers from '../components/ClusterMarkers';
 import SmartFilter from '../components/SmartFilter';
+import StationReviews from '../components/StationReviews';
 import { UserContext } from '../context/user';
 import { getChargers } from '../services/chargerService';
 
@@ -54,6 +55,8 @@ export default function Map() {
   const [bbox, setBbox] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
+  const [selectedStation, setSelectedStation] = useState(null);
+  const [showReviews, setShowReviews] = useState(false);
 
   // Fetch chargers only when we actually have a token
   useEffect(() => {
@@ -178,7 +181,14 @@ export default function Map() {
             attribution='&copy; OpenStreetMap contributors'
           />
           <BoundsWatcher onChange={setBbox} />
-          <ClusterMarkers showReliability={filters.showReliability} stations={filteredStations} />
+          <ClusterMarkers 
+            showReliability={filters.showReliability} 
+            stations={filteredStations}
+            onStationClick={(station) => {
+              setSelectedStation(station);
+              setShowReviews(true);
+            }}
+          />
           <LocateUser />
         </MapContainer>
 
@@ -191,6 +201,17 @@ export default function Map() {
           setFilters={setFilters}
           filteredCount={filteredStations.length}
         />
+
+        {/* Station Reviews */}
+        {showReviews && selectedStation && (
+          <StationReviews
+            station={selectedStation}
+            onClose={() => {
+              setShowReviews(false);
+              setSelectedStation(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );

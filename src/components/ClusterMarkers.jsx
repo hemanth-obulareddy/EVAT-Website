@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet.markercluster';
 import { iconForReliability } from '../utils/chargerIcons';
 
-function ClusterMarkers({ showReliability, stations }) {
+function ClusterMarkers({ showReliability, stations, onStationClick }) {
   const map = useMap();
 
   useEffect(() => {
@@ -29,9 +29,16 @@ function ClusterMarkers({ showReliability, stations }) {
         Access: ${st.access_key_required === 'true' ? 'Restricted' : 'Open'}
       `;
 
-      group.addLayer(
-        L.marker([lat, lng], { icon }).bindPopup(html)
-      );
+      const marker = L.marker([lat, lng], { icon }).bindPopup(html);
+      
+      // Add click event to show reviews
+      marker.on('click', () => {
+        if (onStationClick) {
+          onStationClick(st);
+        }
+      });
+      
+      group.addLayer(marker);
     });
 
     map.addLayer(group);
